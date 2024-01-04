@@ -3,6 +3,9 @@ defmodule PerfumirApiWeb.AccountController do
   alias PerfumirApi.{Users, Accounts, Users.User}
   alias PerfumirApi.Accounts.Account
   alias PerfumirApiWeb.Auth.{Guardian, ErrorResponse}
+  import PerfumirApiWeb.Auth.AuthorizePlug
+
+  plug :is_authorized when action in [:update, :delete]
 
   action_fallback PerfumirApiWeb.FallbackController
 
@@ -40,8 +43,8 @@ defmodule PerfumirApiWeb.AccountController do
     render(conn, :show, account: account)
   end
 
-  def update(conn, %{"id" => id, "account" => account_params}) do
-    account = Accounts.get_account!(id)
+  def update(conn, %{"account" => account_params}) do
+    account = Accounts.get_account!(account_params["id"])
 
     with {:ok, %Account{} = account} <- Accounts.update_account(account, account_params) do
       render(conn, :show, account: account)
